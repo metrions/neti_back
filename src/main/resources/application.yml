@@ -1,0 +1,35 @@
+queue:
+  max_places: 20
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/queue
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+
+springdoc:
+  api-docs:
+    enabled: true  # Включает OpenAPI JSON-документ (http://localhost:8080/v3/api-docs)
+  swagger-ui:
+    enabled: true  # Включает Swagger UI (http://localhost:8080/swagger-ui.html)
+    path: /swagger-ui.html  # Можно изменить путь (например, /docs)
+
+server:
+  port: 8080

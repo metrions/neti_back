@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: queue
+    networks:
+      - queue
+
+  backend:
+    build:
+      dockerfile: Dockerfile
+    container_name: back
+    ports:
+      - "8081:8081"
+
+
+networks:
+  queue:
