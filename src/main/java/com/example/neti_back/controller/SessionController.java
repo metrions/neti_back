@@ -30,12 +30,12 @@ public class SessionController {
         ).toList();
     }
 
-    @GetMapping("/{group}")
-    public List<SessionDto> getAllSessionSubject(@PathVariable("group") String group) {
-        return sessionService.getSessionByGroup(group).stream().map(
-                x -> modelMapper.map(x, SessionDto.class)
-        ).toList();
-    }
+//    @GetMapping("/{group}")
+//    public List<SessionDto> getAllSessionSubject(@PathVariable("group") String group) {
+//        return sessionService.getSessionByGroup(group).stream().map(
+//                x -> modelMapper.map(x, SessionDto.class)
+//        ).toList();
+//    }
 
     @GetMapping("/{id}")
     public List<Integer> getOpenPlaces(@PathVariable("id") UUID subjectId) {
