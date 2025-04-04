@@ -21,6 +21,8 @@ services:
     container_name: back
     ports:
       - "8081:8081"
+    networks:
+      - queue
 
 
 networks:

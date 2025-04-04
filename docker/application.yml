@@ -25,5 +25,13 @@ logging:
         web: DEBUG
       hibernate: DEBUG
 
+springdoc:
+  api-docs:
+    enabled: true  # Включает OpenAPI JSON-документ (http://localhost:8080/v3/api-docs)
+  swagger-ui:
+    enabled: true  # Включает Swagger UI (http://localhost:8080/swagger-ui.html)
+    path: /swagger-ui.html  # Можно изменить путь (например, /docs)
+
+
 server:
   port: 8081
