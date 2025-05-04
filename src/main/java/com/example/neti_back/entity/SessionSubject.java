@@ -2,10 +2,7 @@ package com.example.neti_back.entity;
 
 import com.example.neti_back.utils.ListToIntegerConverter;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
@@ -17,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "session_subject")
+@ToString
 public class SessionSubject {
 
     public enum Day {
