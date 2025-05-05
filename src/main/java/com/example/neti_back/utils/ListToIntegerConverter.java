@@ -5,7 +5,6 @@ import jakarta.persistence.Converter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Converter
@@ -17,7 +16,7 @@ public class ListToIntegerConverter implements AttributeConverter<List<Integer>,
 
     @Override
     public List<Integer> convertToEntityAttribute(String dbData) {
-        if (dbData.isEmpty()) return new ArrayList<>();
-        return dbData == null ? Collections.emptyList() : Arrays.stream(dbData.split(",")).map(Integer::parseInt).toList();
+        if (dbData == null || dbData.isEmpty()) return new ArrayList<>();
+        return Arrays.stream(dbData.split(",")).map(Integer::parseInt).toList();
     }
 }

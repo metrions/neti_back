@@ -1,17 +1,22 @@
 package com.example.neti_back.service;
 
+import com.example.neti_back.entity.QueueSubject;
 import com.example.neti_back.entity.SessionSubject;
 import com.example.neti_back.entity.Subject;
+import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,31 +25,26 @@ import java.util.List;
 import static com.example.neti_back.entity.SessionSubject.Day.*;
 
 @Service
+@RequiredArgsConstructor
 public class HtmlParserService {
+    private final ModelMapper modelMapper;
+    private final String url = "https://www.nstu.ru/studies/schedule/schedule_classes/schedule";
 
-    public List<String> parseHeadings(String url) throws IOException, ParseException {
-        Document doc = Jsoup.connect(url).get();
+    public List<SessionSubject> parseHeadings(String group) throws IOException, ParseException {
+        Document doc = Jsoup.connect(url + "?group=" + group).get();
         Elements timeBlocks = doc.select(".schedule__table-row:has(.schedule__table-time)");
 
         List<String> results = new ArrayList<>();
         var li = timeBlocks.stream().filter(x -> x.toString().contains("·") && x.toString().contains("data-empty")).toList();
+        List<SessionSubject> sessionSubjects = new ArrayList<>();
 
         for (var timeBlock : li) {
-            System.out.println(HtmlParserService.parseSchedule(timeBlock.toString()));
-
-//            String time = timeBlock.select(".schedule__table-time").text().trim();
-//            Elements items = timeBlock.select(".schedule__table-item");
-//            for (var item : items) {
-//                String subjectRaw = item.ownText().trim();
-//                String room = item.select(".schedule__table-class").text().trim();
-//
-//                // Например: "08:30-10:00 | Технологии разработки программного обеспечения | 2-516"
-//                String line = time + " | " + subjectRaw + " | " + room;
-//                results.add(line);
-//            }
+            var list = HtmlParserService.parseSchedule(timeBlock.toString());
+            list.forEach(x -> x.setGroupName(group));
+            sessionSubjects.addAll(list);
         }
 
-        return results;
+        return sessionSubjects;
     }
 
     static HashMap<String, SessionSubject.Day> dayHashMap = new HashMap<>(){{
@@ -108,13 +108,21 @@ public class HtmlParserService {
 
                 SessionSubject lesson = new SessionSubject();
 
+                lesson.setQueueSubject(new QueueSubject());
                 lesson.setDay(dayHashMap.get(currentDay));
-                String startTime = time.substring(0, time.indexOf('-'));
-                String endTime  = time.substring(time.indexOf('-')+1);
 
-                lesson.setStartTime(formatter.parse(startTime).getTime());
-                lesson.setEndTime(formatter.parse(endTime).getTime());
+                String startTimeStr = time.substring(0, time.indexOf('-')).trim();
+                String endTimeStr = time.substring(time.indexOf('-') + 1).trim();
 
+                LocalTime startLocalTime = LocalTime.parse(startTimeStr, DateTimeFormatter.ofPattern("HH:mm"));
+                LocalTime endLocalTime = LocalTime.parse(endTimeStr, DateTimeFormatter.ofPattern("HH:mm"));
+
+                lesson.setStartTime((long) startLocalTime.toSecondOfDay());
+                lesson.setEndTime((long) endLocalTime.toSecondOfDay());
+
+                lesson.setGroupName("ПМИ-22");
+                lesson.setDay(MONDAY);
+                lesson.setWeeks(List.of(1, 2, 3));
                 Subject subj = new Subject();
                 subj.setName(subject);
                 subj.setType(typeHashMap.get(type));

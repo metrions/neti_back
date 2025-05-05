@@ -31,6 +31,9 @@ public class QueueService {
             throw new IllegalStateException("Place number " + dto.getPlaceNumber() + " is already in use");
         }
 
+        if (session.getQueueSubject().getOpenPlaces().containsValue(ip)) {
+            throw new IllegalStateException("You already have place " + ip);
+        }
 
         var newQueue = new HashMap<Integer, String>(session.getQueueSubject().getOpenPlaces());
         newQueue.put(dto.getPlaceNumber(), ip);
@@ -50,10 +53,5 @@ public class QueueService {
 
         return queueResponseDto;
     }
-
-
-
-
-
 
 }

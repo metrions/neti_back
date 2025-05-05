@@ -9,6 +9,6 @@ import java.util.UUID;
 @Setter
 public class QueryRequestDto {
     private UUID sessionId;
-
+    private String mail;
     private Integer placeNumber;
 }

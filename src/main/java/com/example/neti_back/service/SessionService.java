@@ -19,6 +19,7 @@ public class SessionService {
     private final SessionSubjectRepository sessionSubjectRepository;
     private final SubjectRepository subjectRepository;
     private final QueueSubjectRepository queueSubjectRepository;
+    private final ScheduleParser scheduleParser;
 
     public List<SessionSubject> getSessionByGroup(String group) {
         return sessionSubjectRepository.getSessionSubjectByGroupName(group);
@@ -47,4 +48,20 @@ public class SessionService {
         return List.of(1, 2, 3, 4, 5, 6, 7, 8, 9).stream().filter(x -> !s.contains(x)).toList();
     }
 
+    public void clear(){
+        sessionSubjectRepository.deleteAll();
+    }
+
+    public void initFromSchedule(){
+        var liLessons = scheduleParser.getLessons("", "");
+        liLessons.forEach(
+                x -> {
+                    var queue = queueSubjectRepository.save(x.getQueueSubject());
+                    x.setQueueSubject(queue);
+                    var subject = subjectRepository.save(x.getSessionSubject());
+                    x.setSessionSubject(subject);
+                    sessionSubjectRepository.save(x);
+                }
+        );
+    }
 }
