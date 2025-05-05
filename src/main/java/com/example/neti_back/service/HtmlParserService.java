@@ -74,7 +74,7 @@ public class HtmlParserService {
         for (Element row : dayRows) {
             Element dayCell = row.selectFirst(".schedule__table-day");
             if (dayCell != null) {
-                currentDay = dayCell.text().replaceAll("\\s+", "");
+                currentDay = dayCell.text().replaceAll("\\s+", "").substring(0, 2);
                 continue;
             }
 
@@ -120,8 +120,6 @@ public class HtmlParserService {
                 lesson.setStartTime((long) startLocalTime.toSecondOfDay());
                 lesson.setEndTime((long) endLocalTime.toSecondOfDay());
 
-                lesson.setGroupName("ПМИ-22");
-                lesson.setDay(MONDAY);
                 lesson.setWeeks(List.of(1, 2, 3));
                 Subject subj = new Subject();
                 subj.setName(subject);
