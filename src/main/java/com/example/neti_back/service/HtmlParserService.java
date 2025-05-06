@@ -30,18 +30,72 @@ public class HtmlParserService {
     private final ModelMapper modelMapper;
     private final String url = "https://www.nstu.ru/studies/schedule/schedule_classes/schedule";
 
-    public List<SessionSubject> parseHeadings(String group) throws IOException, ParseException {
-        Document doc = Jsoup.connect(url + "?group=" + group).get();
+    private String[] getWeekAndDay(Document doc) {
+        Elements block = doc.select(".schedule__title-desc:has(.schedule__title-content)");
+        if (!block.isEmpty()) {
+            Element container = block.first();
+            String dayText = container.selectFirst(".schedule__title-content").text().split(", ")[1];
+            String weekText = container.selectFirst(".schedule__title-label").text().split(" ")[0];
+            return new String[]{dayText, weekText};
+        }
+        return null;
+    }
+
+
+    public List<SessionSubject> parseHeadings(String group){
+        Document doc;
+        try {
+            doc = Jsoup.connect(url + "?group=" + group).get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String[] dayAndWeek = getWeekAndDay(doc);
+        SessionSubject.Day day = dayHashMap.get(dayAndWeek[0]);
+        Integer week = Integer.parseInt(dayAndWeek[1]);
+
         Elements timeBlocks = doc.select(".schedule__table-row:has(.schedule__table-time)");
 
         List<String> results = new ArrayList<>();
         var li = timeBlocks.stream().filter(x -> x.toString().contains("·") && x.toString().contains("data-empty")).toList();
         List<SessionSubject> sessionSubjects = new ArrayList<>();
 
-        for (var timeBlock : li) {
-            var list = HtmlParserService.parseSchedule(timeBlock.toString());
-            list.forEach(x -> x.setGroupName(group));
-            sessionSubjects.addAll(list);
+        try{
+            for (var timeBlock : li) {
+                var list = HtmlParserService.parseSchedule(timeBlock.toString());
+                list.forEach(x -> x.setGroupName(group));
+                sessionSubjects.addAll(list);
+            }
+        }
+        catch (Exception e){
+            throw new RuntimeException();
+        }
+
+        return sessionSubjects;
+    }
+
+    public List<SessionSubject> parseHeadings(String group, String day) throws IOException, ParseException {
+        Document doc;
+        try {
+            doc = Jsoup.connect(url + "?group=" + group).get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Elements timeBlocks = doc.select(".schedule__table-row:has(.schedule__table-time)");
+
+        List<String> results = new ArrayList<>();
+        var li = timeBlocks.stream().filter(x -> x.toString().contains("·") && x.toString().contains("data-empty")
+            && x.toString().contains(day)).toList();
+        List<SessionSubject> sessionSubjects = new ArrayList<>();
+
+        try{
+            for (var timeBlock : li) {
+                var list = HtmlParserService.parseSchedule(timeBlock.toString());
+                list.forEach(x -> x.setGroupName(group));
+                sessionSubjects.addAll(list);
+            }
+        }
+        catch (Exception e){
+            throw new RuntimeException();
         }
 
         return sessionSubjects;
@@ -55,6 +109,23 @@ public class HtmlParserService {
         put("пт", FRIDAY);
         put("сб", SATURDAY);
         put("вс", SUNDAY);
+        put("понедельник", MONDAY);
+        put("вторник", TUESDAY);
+        put("среда", WEDNESDAY);
+        put("четверг", THURSDAY);
+        put("пятница", FRIDAY);
+        put("суббота", SATURDAY);
+        put("воскресенье", SUNDAY);
+    }};
+
+    static HashMap<SessionSubject.Day, String> dayToStringHashMap = new HashMap<>(){{
+        put(MONDAY, "пн");
+        put(TUESDAY, "вт");
+        put(WEDNESDAY, "ср");
+        put(THURSDAY, "чт");
+        put(FRIDAY, "пт");
+        put(SATURDAY, "сб");
+        put(SUNDAY, "вс");
     }};
 
     static HashMap<String, Subject.TypeSubject> typeHashMap = new HashMap<>(){{

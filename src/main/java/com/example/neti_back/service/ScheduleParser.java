@@ -14,7 +14,7 @@ public class ScheduleParser {
 
     public List<SessionSubject> getLessons(String group, String week) {
         try {
-            List<SessionSubject> li = htmlParserService.parseHeadings("ПМИ-22");
+            List<SessionSubject> li = htmlParserService.parseHeadings(group);
             System.out.println(li);
             return li;
         }

@@ -53,6 +53,20 @@ public class SessionService {
     }
 
     public void initFromSchedule(){
+        var liLessons = scheduleParser.getLessons("ПМИ-22", "");
+        liLessons.forEach(
+                x -> {
+                    var queue = queueSubjectRepository.save(x.getQueueSubject());
+                    x.setQueueSubject(queue);
+                    var subject = subjectRepository.save(x.getSessionSubject());
+                    x.setSessionSubject(subject);
+                    sessionSubjectRepository.save(x);
+                }
+        );
+    }
+
+    // TODO - пока не работает
+    public void initFromSchedule(String day){
         var liLessons = scheduleParser.getLessons("", "");
         liLessons.forEach(
                 x -> {

@@ -40,6 +40,15 @@ public class SessionController {
         sessionService.initFromSchedule();
     }
 
+//    @PostMapping("/init")
+//    public void getAllSession(
+//            @RequestParam(value = "day")
+//            @Parameter(description = "День недели", example = "пн")
+//            String day
+//    ) {
+//        sessionService.initFromSchedule(day);
+//    }
+
     @DeleteMapping("/all")
     public void deleteAllSession() {
         sessionService.clear();
