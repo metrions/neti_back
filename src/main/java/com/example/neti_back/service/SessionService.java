@@ -29,8 +29,8 @@ public class SessionService {
     public List<SessionSubject> getAllSession() {
         return sessionSubjectRepository.findAll();
     }
-    public List<SessionSubject> getAllSession(Day day) {
-        return sessionSubjectRepository.findAll();
+    public List<SessionSubject> getAllSession(Day day, String group) {
+        return sessionSubjectRepository.getSessionSubjectByGroupAndDay(group, day);
     }
 
     public SessionSubject createSession(SessionSubject sessionSubject, UUID subjectId) {

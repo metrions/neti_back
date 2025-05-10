@@ -28,7 +28,23 @@ public enum Day {
         put("воскресенье", SUNDAY);
     }};
 
+    static HashMap<String, Day> dayToString = new HashMap<String, Day>(){{
+        put("MONDAY", MONDAY);
+        put("TUESDAY", TUESDAY);
+        put("WEDNESDAY", WEDNESDAY);
+        put("THURSDAY", THURSDAY);
+        put("FRIDAY", FRIDAY);
+        put("SATURDAY", SATURDAY);
+        put("SUNDAY", SUNDAY);
+    }};
+
     public static Day getDay(String day) {
         return dayHashMap.get(day);
     }
+
+    @Override
+    public String toString() {
+        return name();
+    }
+
 }

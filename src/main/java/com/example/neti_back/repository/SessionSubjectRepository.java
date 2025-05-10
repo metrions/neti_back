@@ -1,6 +1,7 @@
 package com.example.neti_back.repository;
 
 import com.example.neti_back.entity.SessionSubject;
+import com.example.neti_back.entity.enums.Day;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,8 @@ import java.util.UUID;
 public interface SessionSubjectRepository extends JpaRepository<SessionSubject, UUID> {
     @Query("select ses from SessionSubject ses where ses.groupName = :group")
     List<SessionSubject> getSessionSubjectByGroupName(@Param("group") String group);
+
+    @Query("select ses from SessionSubject ses where ses.groupName = :group and ses.day = :day")
+    List<SessionSubject> getSessionSubjectByGroupAndDay(@Param("group") String group, @Param("day") Day day);
+
 }
