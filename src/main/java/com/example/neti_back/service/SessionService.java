@@ -3,6 +3,7 @@ package com.example.neti_back.service;
 import com.example.neti_back.entity.QueueSubject;
 import com.example.neti_back.entity.SessionSubject;
 import com.example.neti_back.entity.Subject;
+import com.example.neti_back.entity.enums.Day;
 import com.example.neti_back.repository.QueueSubjectRepository;
 import com.example.neti_back.repository.SessionSubjectRepository;
 import com.example.neti_back.repository.SubjectRepository;
@@ -26,6 +27,9 @@ public class SessionService {
     }
 
     public List<SessionSubject> getAllSession() {
+        return sessionSubjectRepository.findAll();
+    }
+    public List<SessionSubject> getAllSession(Day day) {
         return sessionSubjectRepository.findAll();
     }
 

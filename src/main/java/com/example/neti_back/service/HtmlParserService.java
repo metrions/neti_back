@@ -3,6 +3,7 @@ package com.example.neti_back.service;
 import com.example.neti_back.entity.QueueSubject;
 import com.example.neti_back.entity.SessionSubject;
 import com.example.neti_back.entity.Subject;
+import com.example.neti_back.entity.enums.Day;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,13 +23,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.example.neti_back.entity.SessionSubject.Day.*;
-
 @Service
 @RequiredArgsConstructor
 public class HtmlParserService {
     private final ModelMapper modelMapper;
     private final String url = "https://www.nstu.ru/studies/schedule/schedule_classes/schedule";
+    private final String defaultGroup = "ПМИ-22";
 
     private String[] getWeekAndDay(Document doc) {
         Elements block = doc.select(".schedule__title-desc:has(.schedule__title-content)");
@@ -41,7 +41,21 @@ public class HtmlParserService {
         return null;
     }
 
+    public String[] getWeekAndDay() {
+        Document doc;
+        try {
+            doc = Jsoup.connect(url + "?group=" + defaultGroup).get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String[] dayAndWeek = getWeekAndDay(doc);
+        Day day = Day.getDay(dayAndWeek[0]);
+        Integer week = Integer.parseInt(dayAndWeek[1]);
 
+        return getWeekAndDay(doc);
+    }
+
+    // TODO - доделать парс тек дня и недели
     public List<SessionSubject> parseHeadings(String group){
         Document doc;
         try {
@@ -50,7 +64,7 @@ public class HtmlParserService {
             throw new RuntimeException(e);
         }
         String[] dayAndWeek = getWeekAndDay(doc);
-        SessionSubject.Day day = dayHashMap.get(dayAndWeek[0]);
+        Day day = Day.getDay(dayAndWeek[0]);
         Integer week = Integer.parseInt(dayAndWeek[1]);
 
         Elements timeBlocks = doc.select(".schedule__table-row:has(.schedule__table-time)");
@@ -101,32 +115,6 @@ public class HtmlParserService {
         return sessionSubjects;
     }
 
-    static HashMap<String, SessionSubject.Day> dayHashMap = new HashMap<>(){{
-        put("пн", MONDAY);
-        put("вт", TUESDAY);
-        put("ср", WEDNESDAY);
-        put("чт", THURSDAY);
-        put("пт", FRIDAY);
-        put("сб", SATURDAY);
-        put("вс", SUNDAY);
-        put("понедельник", MONDAY);
-        put("вторник", TUESDAY);
-        put("среда", WEDNESDAY);
-        put("четверг", THURSDAY);
-        put("пятница", FRIDAY);
-        put("суббота", SATURDAY);
-        put("воскресенье", SUNDAY);
-    }};
-
-    static HashMap<SessionSubject.Day, String> dayToStringHashMap = new HashMap<>(){{
-        put(MONDAY, "пн");
-        put(TUESDAY, "вт");
-        put(WEDNESDAY, "ср");
-        put(THURSDAY, "чт");
-        put(FRIDAY, "пт");
-        put(SATURDAY, "сб");
-        put(SUNDAY, "вс");
-    }};
 
     static HashMap<String, Subject.TypeSubject> typeHashMap = new HashMap<>(){{
         put("Лекция", Subject.TypeSubject.LECTURE);
@@ -180,7 +168,7 @@ public class HtmlParserService {
                 SessionSubject lesson = new SessionSubject();
 
                 lesson.setQueueSubject(new QueueSubject());
-                lesson.setDay(dayHashMap.get(currentDay));
+                lesson.setDay(Day.getDay(currentDay));
 
                 String startTimeStr = time.substring(0, time.indexOf('-')).trim();
                 String endTimeStr = time.substring(time.indexOf('-') + 1).trim();

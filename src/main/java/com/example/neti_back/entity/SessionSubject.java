@@ -1,5 +1,6 @@
 package com.example.neti_back.entity;
 
+import com.example.neti_back.entity.enums.Day;
 import com.example.neti_back.utils.ListToIntegerConverter;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,16 +17,6 @@ import java.util.UUID;
 @Table(name = "session_subject")
 @ToString
 public class SessionSubject {
-
-    public enum Day {
-        MONDAY,
-        TUESDAY,
-        WEDNESDAY,
-        THURSDAY,
-        FRIDAY,
-        SATURDAY,
-        SUNDAY
-    }
 
     @Id
     @GeneratedValue(generator = "UUID")
