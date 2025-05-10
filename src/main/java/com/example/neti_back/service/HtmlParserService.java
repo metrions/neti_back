@@ -55,6 +55,23 @@ public class HtmlParserService {
         return getWeekAndDay(doc);
     }
 
+    public static int getActiveWeek(String html) {
+        Document doc = Jsoup.parse(html);
+
+        Element activeWeekElement = doc.selectFirst(".schedule__weeks-item.is-active");
+
+        if (activeWeekElement != null) {
+            String week = activeWeekElement.attr("data-week");
+            try {
+                return Integer.parseInt(week);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Неверный формат номера недели: " + week);
+            }
+        } else {
+            throw new RuntimeException("Активная неделя не найдена");
+        }
+    }
+
     // TODO - доделать парс тек дня и недели
     public List<SessionSubject> parseHeadings(String group){
         Document doc;
@@ -63,20 +80,19 @@ public class HtmlParserService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String[] dayAndWeek = getWeekAndDay(doc);
-        Day day = Day.getDay(dayAndWeek[0]);
-        Integer week = Integer.parseInt(dayAndWeek[1]);
-
+        int weekNumber = getActiveWeek(doc.html());
         Elements timeBlocks = doc.select(".schedule__table-row:has(.schedule__table-time)");
 
-        List<String> results = new ArrayList<>();
         var li = timeBlocks.stream().filter(x -> x.toString().contains("·") && x.toString().contains("data-empty")).toList();
         List<SessionSubject> sessionSubjects = new ArrayList<>();
 
         try{
             for (var timeBlock : li) {
                 var list = HtmlParserService.parseSchedule(timeBlock.toString());
-                list.forEach(x -> x.setGroupName(group));
+                list.forEach(x -> {
+                    x.setGroupName(group);
+                    x.setWeek(weekNumber);
+                });
                 sessionSubjects.addAll(list);
             }
         }
@@ -169,6 +185,7 @@ public class HtmlParserService {
 
                 lesson.setQueueSubject(new QueueSubject());
                 lesson.setDay(Day.getDay(currentDay));
+                lesson.setWeek(lesson.getWeek());
 
                 String startTimeStr = time.substring(0, time.indexOf('-')).trim();
                 String endTimeStr = time.substring(time.indexOf('-') + 1).trim();
@@ -179,7 +196,6 @@ public class HtmlParserService {
                 lesson.setStartTime((long) startLocalTime.toSecondOfDay());
                 lesson.setEndTime((long) endLocalTime.toSecondOfDay());
 
-                lesson.setWeeks(List.of(1, 2, 3));
                 Subject subj = new Subject();
                 subj.setName(subject);
                 subj.setType(typeHashMap.get(type));

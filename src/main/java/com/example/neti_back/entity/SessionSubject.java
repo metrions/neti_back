@@ -1,12 +1,10 @@
 package com.example.neti_back.entity;
 
 import com.example.neti_back.entity.enums.Day;
-import com.example.neti_back.utils.ListToIntegerConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -33,8 +31,8 @@ public class SessionSubject {
     private Day day;
 
     @Column
-    @Convert(converter = ListToIntegerConverter.class)
-    private List<Integer> weeks;
+//    @Convert(converter = ListToIntegerConverter.class)
+    private Integer week;
 
     @Column
     private String room;

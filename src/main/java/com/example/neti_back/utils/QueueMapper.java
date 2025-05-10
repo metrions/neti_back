@@ -28,7 +28,7 @@ public class QueueMapper extends ModelMapper {
                 map(source.getDay(), destination.getDay());
                 map(source.getSessionSubject().getName(), destination.getSubjectName());
                 map(source.getGroupName(), destination.getGroup());
-                map(source.getWeeks(), destination.getWeeks());
+                map(source.getWeek(), destination.getWeeks());
                 map(source.getQueueSubject().getId(), destination.getQueueSubject());
             }
         });
@@ -40,7 +40,7 @@ public class QueueMapper extends ModelMapper {
                 using(localTimeToLongConverter).map(source.getEndTime(), destination.getEndTime());
                 map(source.getDay(), destination.getDay());
                 map(source.getGroup(), destination.getGroupName());
-                map(source.getWeeks(), destination.getWeeks());
+                map(source.getWeeks(), destination.getWeek());
                 map(source.getQueueSubject(), destination.getQueueSubject().getId());
             }
         });
