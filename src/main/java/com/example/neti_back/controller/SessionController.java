@@ -1,5 +1,6 @@
 package com.example.neti_back.controller;
 
+import com.example.neti_back.dto.QueueResponseDto;
 import com.example.neti_back.dto.SessionDto;
 import com.example.neti_back.entity.SessionSubject;
 import com.example.neti_back.entity.enums.Day;
@@ -59,7 +60,7 @@ public class SessionController {
 
     @Operation(summary = "Получить свободные места", description = "Возвращает список открытых мест по ID сессии")
     @GetMapping("/{id}")
-    public List<Integer> getOpenPlaces(
+    public QueueResponseDto getOpenPlaces(
             @Parameter(description = "ID сессии", required = true)
             @PathVariable("id") UUID sessionId) {
         return sessionService.getOpenPlaces(sessionId);

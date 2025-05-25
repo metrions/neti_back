@@ -1,5 +1,6 @@
 package com.example.neti_back.service;
 
+import com.example.neti_back.dto.QueueResponseDto;
 import com.example.neti_back.entity.QueueSubject;
 import com.example.neti_back.entity.SessionSubject;
 import com.example.neti_back.entity.Subject;
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -44,12 +45,18 @@ public class SessionService {
         return sessionSubject;
     }
 
-    public List<Integer> getOpenPlaces(UUID sessionId) {
+    public QueueResponseDto getOpenPlaces(UUID sessionId) {
         final var session = sessionSubjectRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalArgumentException("Could not find session with id: " + sessionId));
-        Set s = session.getQueueSubject().getOpenPlaces().keySet();
-
-        return List.of(1, 2, 3, 4, 5, 6, 7, 8, 9).stream().filter(x -> !s.contains(x)).toList();
+        QueueResponseDto queueResponseDto = new QueueResponseDto();
+        Map<Integer, String> s = session.getQueueSubject().getOpenPlaces();
+        queueResponseDto.setPlaces(
+                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9).stream().filter(x -> {
+                    return !s.containsKey(x);
+                }).toList()
+        );
+        queueResponseDto.setPlaceStudents(s);
+        return queueResponseDto;
     }
 
     public void clear(){

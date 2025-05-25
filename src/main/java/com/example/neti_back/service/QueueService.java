@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -22,36 +22,56 @@ public class QueueService {
     private final QueueSubjectRepository queueSubjectRepository;
 
     @Transactional
-    public QueueResponseDto choosePlace(QueryRequestDto dto, UUID queueId, String ip) {
-        var session = sessionSubjectRepository.findById(queueId).orElseThrow(
-                () -> new IllegalStateException("No session found for sessionId: " + queueId)
-        );
+    public QueueResponseDto choosePlace(QueryRequestDto dto, UUID queueId) {
+        try {
+            var session = sessionSubjectRepository.findById(queueId).orElseThrow(
+                    () -> new IllegalStateException("No session found for sessionId: " + queueId)
+            );
 
-        if (session.getQueueSubject().getOpenPlaces().containsKey(dto.getPlaceNumber())){
-            throw new IllegalStateException("Place number " + dto.getPlaceNumber() + " is already in use");
+            var places = session.getQueueSubject().getOpenPlaces();
+
+            if (places.containsKey(dto.getPlaceNumber())) {
+                throw new IllegalStateException("Place number " + dto.getPlaceNumber() + " is already in use");
+            }
+            String name = dto.getName();
+            if (places.containsValue(name)) {
+                throw new IllegalStateException("You already have place " + name);
+            }
+
+            var newQueue = new HashMap<Integer, String>(session.getQueueSubject().getOpenPlaces());
+            newQueue.put(dto.getPlaceNumber(), name);
+            session.getQueueSubject().setOpenPlaces(newQueue);
+            queueSubjectRepository.save(session.getQueueSubject());
+            sessionSubjectRepository.save(session);
+
+            var session2 = sessionSubjectRepository.findById(queueId).orElseThrow(
+                    () -> new IllegalStateException("No session found for sessionId: " + queueId)
+            );
+
+            QueueResponseDto queueResponseDto = new QueueResponseDto();
+            Map<Integer, String> s = session2.getQueueSubject().getOpenPlaces();
+            queueResponseDto.setPlaces(
+                    List.of(1, 2, 3, 4, 5, 6, 7, 8, 9).stream().filter(x -> {
+                        return !s.containsKey(x);
+                    }).toList()
+            );
+            queueResponseDto.setPlaceStudents(s);
+            return queueResponseDto;
         }
-
-        if (session.getQueueSubject().getOpenPlaces().containsValue(ip)) {
-            throw new IllegalStateException("You already have place " + ip);
+        catch (Exception e){
+            var session2 = sessionSubjectRepository.findById(queueId).orElseThrow(
+                    () -> new IllegalStateException("No session found for sessionId: " + queueId)
+            );
+            QueueResponseDto queueResponseDto = new QueueResponseDto();
+            Map<Integer, String> s = session2.getQueueSubject().getOpenPlaces();
+            queueResponseDto.setPlaces(
+                    List.of(1, 2, 3, 4, 5, 6, 7, 8, 9).stream().filter(x -> {
+                        return !s.containsKey(x);
+                    }).toList()
+            );
+            queueResponseDto.setPlaceStudents(s);
+            return queueResponseDto;
         }
-
-        var newQueue = new HashMap<Integer, String>(session.getQueueSubject().getOpenPlaces());
-        newQueue.put(dto.getPlaceNumber(), ip);
-        session.getQueueSubject().setOpenPlaces(newQueue);
-        queueSubjectRepository.save(session.getQueueSubject());
-        sessionSubjectRepository.save(session);
-
-        var session2 = sessionSubjectRepository.findById(queueId).orElseThrow(
-                () -> new IllegalStateException("No session found for sessionId: " + queueId)
-        );
-
-        QueueResponseDto queueResponseDto = new QueueResponseDto();
-        Set s = session2.getQueueSubject().getOpenPlaces().keySet();
-        queueResponseDto.setPlaces(
-                List.of(1, 2, 3, 4, 5, 6, 7, 8, 9).stream().filter(x -> !s.contains(x)).toList()
-        );
-
-        return queueResponseDto;
     }
 
 }

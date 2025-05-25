@@ -11,4 +11,5 @@ public class QueryRequestDto {
     private UUID sessionId;
     private String mail;
     private Integer placeNumber;
+    private String name;
 }

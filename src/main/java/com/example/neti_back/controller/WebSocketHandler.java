@@ -33,7 +33,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     public QueueResponseDto handleQuery(
             @Payload QueryRequestDto request,
             @DestinationVariable UUID queueId) {
-        return queueService.choosePlace(request, queueId, request.getMail());
+        return queueService.choosePlace(request, queueId);
     }
 
     @MessageExceptionHandler(IllegalStateException.class)

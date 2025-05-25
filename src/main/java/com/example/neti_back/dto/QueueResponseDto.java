@@ -4,11 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @Getter
 @Setter
 public class QueueResponseDto {
     private List<Integer> places;
-    private List<Integer> choosedPlaces;
+    private Map<Integer, String> placeStudents;
 }
